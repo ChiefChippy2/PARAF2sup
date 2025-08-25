@@ -78,7 +78,7 @@ async function handleInteraction(interaction) {
       flags: MessageFlags.Ephemeral,
     });
 
-    const data = [Date.now(), interaction.user.id, interaction.user.tag, info.category, ...response];
+    const data = [new Date().toISOString(), interaction.user.id, interaction.user.tag, info.category, ...response];
 
     // Fetch Apps Script endpoint
     const send = await sendToUrl(data);
