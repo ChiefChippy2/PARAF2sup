@@ -61,18 +61,21 @@ async function initInteraction(chn) {
  */
 async function handleInteraction(interaction) {
   if (interaction.customId.startsWith(`${prefix}_1`)) {
-    await interaction.message?.fetch?.()
+    await interaction.message?.fetch?.();
     const type = interaction.customId.split('_').slice(-1)[0];
     const info = text.form.find((el)=>el.category === type);
     const fieldsNo = info.questions.length;
     const response = [];
-    for (let i = 1; i <= fieldsNo; i++) response.push(interaction.fields.getTextInputValue(`Q${i}`));
+    for (let i = 1; i <= fieldsNo; i++) {
+      response.push(interaction.fields.getTextInputValue(`Q${i}`));
+    }
+
     console.log(response);
     // Save in case of failure
     await appendFile('save', JSON.stringify([Date.now(), interaction.user.id, interaction.user.tag, ...response])+'\n');
     await interaction.deferReply({
-      flags: MessageFlags.Ephemeral
-    })
+      flags: MessageFlags.Ephemeral,
+    });
     // Fetch Apps Script endpoint
     if (process.env.APPS_SCRIPT_ENDPOINT_URL) {
       const send = await fetch(process.env.APPS_SCRIPT_ENDPOINT_URL, {

@@ -9,4 +9,8 @@ export default defineConfig([
   {files: ['**/*.{js,mjs,cjs}'], plugins: {js}, extends: ['js/recommended'], languageOptions: {globals: globals.node}},
   {files: ['**/*.js'], languageOptions: {sourceType: 'commonjs'}},
   google,
+  {rules: {
+    'max-len': 'warn',
+    'n/global-require': 'off',
+  }},
 ]);
