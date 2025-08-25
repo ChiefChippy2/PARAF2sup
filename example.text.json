@@ -1,0 +1,29 @@
+{
+  "idprefix": "ID_FOR_BOT",
+  "successMsg": "Success!",
+  "errMsg": "Err!",
+  "msg": {
+    "content": "Message for button"
+  },
+  "form": [
+    {
+      "title": "Title for form 1 (button 1)",
+      "label": "Button 1",
+      "category": "id",
+      "questions": [
+        {
+          "question": "question title",
+          "style": "Short",
+          "placeholder": "placeholder",
+          "required": true
+        },
+        {
+          "question": "question title",
+          "style": "Paragraph",
+          "placeholder": "funni",
+          "required": false
+        }
+      ]
+    }
+    ]
+  }
