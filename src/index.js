@@ -1,6 +1,6 @@
 const {Client, ButtonBuilder, ButtonStyle, ActionRowBuilder, ModalBuilder, TextInputBuilder, TextInputStyle, MessageFlags} = require('discord.js'); // eslint-disable-line
 require('dotenv').config();
-const text = require('./text.json');
+const text = require('../text.json');
 const {appendFile} = require('fs/promises');
 
 const prefix = text.idprefix;
@@ -72,7 +72,7 @@ async function handleInteraction(interaction) {
 
     console.log(response);
     // Save in case of failure
-    await appendFile('save', JSON.stringify([Date.now(), interaction.user.id, interaction.user.tag, ...response])+'\n');
+    await appendFile('../save', JSON.stringify([Date.now(), interaction.user.id, interaction.user.tag, ...response])+'\n');
     await interaction.deferReply({
       flags: MessageFlags.Ephemeral,
     });
