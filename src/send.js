@@ -9,10 +9,10 @@ const regulator = {
 
 async function sendToUrl(data) {
   // Save
-  await appendFile('../save', [Date.now(), ...data].join(',')+'\n');
+  await appendFile('./save', [Date.now(), ...data].join(',')+'\n');
   if (process.env.APPS_SCRIPT_ENDPOINT_URL) {
     const condition = regulator.lastSentTime + regulator.cooldown;
-    if (process.env.NO_CACHE || condition < Date.now()) {
+    if (process.env.NO_CACHE === '1' || condition < Date.now()) {
       const send = await fetch(process.env.APPS_SCRIPT_ENDPOINT_URL, {
         method: 'POST',
         body: JSON.stringify({
@@ -27,7 +27,9 @@ async function sendToUrl(data) {
     } else {
       regulator.cache.push(data);
       if (regulator.batch) return true;
-      const timeout = regulator.cooldown + regulator.lastSentTime - Date.now();
+      // Allow 3 seconds
+      const timeout = regulator.cooldown + regulator.lastSentTime - Date.now() - 3000;
+      console.log(timeout);
       regulator.batch = setTimeout(batchSend, timeout);
       return true;
     }
@@ -37,6 +39,24 @@ async function sendToUrl(data) {
 
 async function batchSend() {
   // TBD : send as many from cache. reset batch to null;
+  console.log('batch sendn');
+  const package = [];
+  while (regulator.cache.length > 0) {
+    package.push(regulator.cache.shift());
+  }
+  const send = await fetch(process.env.APPS_SCRIPT_ENDPOINT_URL, {
+    method: 'POST',
+    body: JSON.stringify({
+      type: 'V2',
+      batch: true,
+      data: package,
+    }),
+    redirect: 'follow',
+  }).then((r)=>r.status);
+  regulator.lastSentTime = Date.now();
+  if (send !== 200) return false;
+  regulator.batch = null;
+  return true;
 }
 
-module.exports = sendToUrl;
+module.exports = {sendToUrl};

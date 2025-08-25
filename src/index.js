@@ -3,6 +3,8 @@ require('dotenv').config();
 const text = require('../text.json');
 const {appendFile} = require('fs/promises');
 
+const {sendToUrl} = require('./send.js');
+
 const prefix = text.idprefix;
 const Cli = new Client({
   intents: 0,
@@ -70,36 +72,27 @@ async function handleInteraction(interaction) {
       response.push(interaction.fields.getTextInputValue(`Q${i}`));
     }
 
-    console.log(response);
+    console.debug(info.category, response);
     // Save in case of failure
-    await appendFile('../save', JSON.stringify([Date.now(), interaction.user.id, interaction.user.tag, ...response])+'\n');
     await interaction.deferReply({
       flags: MessageFlags.Ephemeral,
     });
+
+    const data = [Date.now(), interaction.user.id, interaction.user.tag, info.category, ...response];
+
     // Fetch Apps Script endpoint
-    if (process.env.APPS_SCRIPT_ENDPOINT_URL) {
-      const send = await fetch(process.env.APPS_SCRIPT_ENDPOINT_URL, {
-        method: 'POST',
-        body: JSON.stringify({
-          'timestamp': Date.now(),
-          'userId': interaction.user.id,
-          'userTag': interaction.user.tag,
-          'fields': response,
-          'userJoinDate': interaction.user.createdAt.getTime(),
-        }),
-        redirect: 'follow',
-      }).then((r)=>r.status);
-      if (send !== 200) {
-        return await interaction.followUp({
-          content: text.errMsg,
-          flags: MessageFlags.Ephemeral,
-        });
-      }
+    const send = await sendToUrl(data);
+    if (send) {
+      await interaction.followUp({
+        content: text.successMsg,
+        flags: MessageFlags.Ephemeral,
+      });
+    } else {
+      await interaction.followUp({
+        content: text.errMsg,
+        flags: MessageFlags.Ephemeral,
+      });
     }
-    await interaction.followUp({
-      content: text.successMsg,
-      flags: MessageFlags.Ephemeral,
-    });
   }
   if (!interaction.customId.startsWith(`${prefix}_0`)) {
     return;
