@@ -2,6 +2,7 @@
   "idprefix": "ID_FOR_BOT",
   "successMsg": "Success!",
   "errMsg": "Err!",
+  "receivedResponse": "Title for log in discord",
   "msg": {
     "content": "Message for button"
   },
