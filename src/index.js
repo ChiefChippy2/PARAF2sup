@@ -4,6 +4,7 @@ const text = require('../text.json');
 const {appendFile} = require('fs/promises');
 
 const {sendToUrl} = require('./send.js');
+const {sendToLogChannel} = require('./log.js');
 
 const prefix = text.idprefix;
 const Cli = new Client({
@@ -19,6 +20,10 @@ Cli.on('interactionCreate', handleInteraction);
 
 async function ready() {
   console.log(`${Cli.user.tag} Online!`);
+
+  if (process.env.LOG_CHANNEL_ID) {
+    Cli.logChannel = await Cli.channels.fetch(process.env.LOG_CHANNEL_ID);
+  }
 
   const channel = process.env.CHANNEL_ID;
   const chn = await Cli.channels.fetch(channel);
@@ -79,7 +84,7 @@ async function handleInteraction(interaction) {
     });
 
     const data = [new Date().toISOString(), interaction.user.id, interaction.user.tag, info.category, ...response];
-
+    const channelLog = await sendToLogChannel(interaction, info.label, info.questions).catch(console.error);
     // Fetch Apps Script endpoint
     const send = await sendToUrl(data);
     if (send) {
